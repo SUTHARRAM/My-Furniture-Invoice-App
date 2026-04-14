@@ -50,7 +50,7 @@ func Setup(r *gin.Engine) {
 		invoices.GET("/:id", handlers.GetInvoice)
 		invoices.PUT("/:id", handlers.UpdateInvoice)
 		invoices.PATCH("/:id/payment", handlers.UpdatePayment)
-		invoices.DELETE("/:id", middleware.AdminOnly(), handlers.DeleteInvoice)
+		invoices.DELETE("/:id", handlers.DeleteInvoice)
 
 		// PDF
 		invoices.POST("/:id/pdf/generate", handlers.GeneratePDF)

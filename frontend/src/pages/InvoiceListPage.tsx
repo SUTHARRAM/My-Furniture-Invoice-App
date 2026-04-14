@@ -8,7 +8,6 @@ import { Spinner } from '../components/ui/Spinner';
 import { StatusBadge } from '../components/ui/Badge';
 import { useDebounce } from '../hooks/useDebounce';
 import { useUIStore } from '../store/uiStore';
-import { useAuthStore } from '../store/authStore';
 import { ShareModal } from '../components/share/ShareModal';
 import { formatINR } from '../utils/formatCurrency';
 import { formatDate } from '../utils/dateHelpers';
@@ -25,13 +24,11 @@ export function InvoiceListPage() {
   const debouncedQ = useDebounce(q, 400);
 
   const params = { q: debouncedQ, from, to, status, page, limit: 20 };
-  const { data, isLoading } = useQuery(['invoices', params], () => invoiceApi.list(params));
+  const { data, isLoading, isError } = useQuery(['invoices', params], () => invoiceApi.list(params));
 
   const invoices = data?.data?.data || [];
   const total = data?.data?.total || 0;
   const pages = data?.data?.pages || 1;
-
-  const { user } = useAuthStore();
 
   const handleDelete = async (id: string) => {
     if (!window.confirm('Delete this invoice?')) return;
@@ -61,6 +58,12 @@ export function InvoiceListPage() {
       <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
         {isLoading ? (
           <div className="flex justify-center py-12"><Spinner /></div>
+        ) : isError ? (
+          <div className="text-center py-12 text-red-400">
+            <div className="text-4xl mb-2">⚠️</div>
+            <p className="font-medium">Failed to load invoices</p>
+            <p className="text-sm text-gray-400 mt-1">Check your connection or try refreshing</p>
+          </div>
         ) : invoices.length === 0 ? (
           <div className="text-center py-12 text-gray-400">
             <div className="text-4xl mb-2">📄</div>
@@ -90,9 +93,7 @@ export function InvoiceListPage() {
                     <Link to={`/invoices/${inv.id}`} className="text-xs text-blue-600 hover:underline">View</Link>
                     <Link to={`/invoices/${inv.id}/edit`} className="text-xs text-gray-600 hover:underline">Edit</Link>
                     <button onClick={() => openShareModal(inv.id)} className="text-xs text-green-600 hover:underline">Share</button>
-                    {user?.role === 'admin' && (
-                      <button onClick={() => handleDelete(inv.id)} className="text-xs text-red-500 hover:underline">Delete</button>
-                    )}
+                    <button onClick={() => handleDelete(inv.id)} className="text-xs text-red-500 hover:underline">Delete</button>
                   </div>
                 </div>
               ))}

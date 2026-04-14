@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { invoiceApi } from '../api/invoiceApi';
 import { InvoicePreview } from '../components/invoice/InvoicePreview';
@@ -8,14 +8,14 @@ import { StatusBadge } from '../components/ui/Badge';
 import { Spinner } from '../components/ui/Spinner';
 import { ShareModal } from '../components/share/ShareModal';
 import { useUIStore } from '../store/uiStore';
-import { useAuthStore } from '../store/authStore';
 
 export function InvoiceDetailPage() {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const { addToast, openShareModal } = useUIStore();
-  const { user } = useAuthStore();
   const queryClient = useQueryClient();
   const [pdfLoading, setPdfLoading] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   const { data, isLoading } = useQuery(['invoice', id], () => invoiceApi.get(id!));
   const invoice = data?.data?.data;
@@ -43,6 +43,20 @@ export function InvoiceDetailPage() {
     }
   };
 
+  const handleDelete = async () => {
+    if (!window.confirm(`Delete invoice ${invoice?.invoice_number}? This cannot be undone.`)) return;
+    setDeleteLoading(true);
+    try {
+      await invoiceApi.delete(id!);
+      queryClient.invalidateQueries(['invoices']);
+      addToast('Invoice deleted');
+      navigate('/invoices');
+    } catch {
+      addToast('Delete failed', 'error');
+      setDeleteLoading(false);
+    }
+  };
+
   if (isLoading) return <div className="flex justify-center py-12"><Spinner /></div>;
   if (!invoice) return <div className="text-center text-gray-400 py-12">Invoice not found</div>;
 
@@ -60,6 +74,7 @@ export function InvoiceDetailPage() {
           </Link>
           <Button size="sm" loading={pdfLoading} onClick={handleDownload}>⬇ Download PDF</Button>
           <Button size="sm" variant="secondary" onClick={() => openShareModal(id!)}>Share</Button>
+          <Button size="sm" variant="danger" loading={deleteLoading} onClick={handleDelete}>Delete</Button>
         </div>
       </div>
 

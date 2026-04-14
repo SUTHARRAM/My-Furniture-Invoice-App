@@ -4,7 +4,6 @@ import { Invoice } from '../../types/invoice.types';
 import { StatusBadge } from '../ui/Badge';
 import { formatINR } from '../../utils/formatCurrency';
 import { formatDate } from '../../utils/dateHelpers';
-import { useAuthStore } from '../../store/authStore';
 import { useUIStore } from '../../store/uiStore';
 
 interface Props {
@@ -13,7 +12,6 @@ interface Props {
 }
 
 export function InvoiceCard({ invoice, onDelete }: Props) {
-  const { user } = useAuthStore();
   const { openShareModal } = useUIStore();
 
   return (
@@ -32,7 +30,7 @@ export function InvoiceCard({ invoice, onDelete }: Props) {
           <Link to={`/invoices/${invoice.id}`} className="text-xs text-blue-600 hover:underline">View</Link>
           <Link to={`/invoices/${invoice.id}/edit`} className="text-xs text-gray-600 hover:underline">Edit</Link>
           <button onClick={() => openShareModal(invoice.id)} className="text-xs text-green-600 hover:underline">Share</button>
-          {user?.role === 'admin' && onDelete && (
+          {onDelete && (
             <button onClick={() => onDelete(invoice.id)} className="text-xs text-red-500 hover:underline">Delete</button>
           )}
         </div>
