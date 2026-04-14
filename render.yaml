@@ -2,7 +2,7 @@ services:
   - type: web
     name: furniture-invoice-backend
     runtime: docker
-    dockerContext: ./backend
+    rootDir: backend
     envVars:
       - key: PORT
         value: 8080
