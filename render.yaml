@@ -2,7 +2,6 @@ services:
   - type: web
     name: furniture-invoice-backend
     runtime: docker
-    dockerfilePath: Dockerfile
     dockerContext: ./backend
     envVars:
       - key: PORT
