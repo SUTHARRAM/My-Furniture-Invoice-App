@@ -25,6 +25,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+      network: host
     container_name: invoice_backend
     restart: unless-stopped
     env_file:
@@ -46,6 +47,7 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      network: host
     container_name: invoice_frontend
     restart: unless-stopped
     ports:
@@ -64,3 +66,5 @@ volumes:
 networks:
   invoice_net:
     driver: bridge
+    driver_opts:
+      com.docker.network.driver.mtu: "1280"
