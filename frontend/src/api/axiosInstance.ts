@@ -16,12 +16,13 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// On 401, try refresh then retry
+// On 401, try refresh then retry — but never for the refresh endpoint itself
 api.interceptors.response.use(
   (res) => res,
   async (error) => {
     const original = error.config;
-    if (error.response?.status === 401 && !original._retry) {
+    const isRefreshCall = original?.url?.includes('/auth/refresh');
+    if (error.response?.status === 401 && !original._retry && !isRefreshCall) {
       original._retry = true;
       try {
         const resp = await axios.post(`${BASE_URL}/auth/refresh`, {}, { withCredentials: true });

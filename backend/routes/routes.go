@@ -20,12 +20,14 @@ func Setup(r *gin.Engine) {
 
 	v1 := r.Group("/api/v1")
 
-	// Auth (rate-limited)
+	// Auth
 	auth := v1.Group("/auth")
-	auth.Use(middleware.RateLimit())
 	{
-		auth.POST("/register", handlers.Register)
-		auth.POST("/login", handlers.Login)
+		// Rate-limited: brute-force targets only
+		auth.POST("/register", middleware.RateLimit(), handlers.Register)
+		auth.POST("/login", middleware.RateLimit(), handlers.Login)
+
+		// Not rate-limited: called automatically on every page load
 		auth.POST("/refresh", handlers.RefreshToken)
 		auth.POST("/logout", middleware.AuthRequired(), handlers.Logout)
 		auth.GET("/me", middleware.AuthRequired(), handlers.Me)

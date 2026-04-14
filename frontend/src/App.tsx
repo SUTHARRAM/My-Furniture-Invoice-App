@@ -10,8 +10,11 @@ import { InvoiceCreatePage } from './pages/InvoiceCreatePage';
 import { InvoiceEditPage } from './pages/InvoiceEditPage';
 import { InvoiceDetailPage } from './pages/InvoiceDetailPage';
 import { AdminUsersPage } from './pages/AdminUsersPage';
+import axios from 'axios';
 import { authApi } from './api/authApi';
 import { useAuthStore } from './store/authStore';
+
+const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080/api/v1';
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, staleTime: 30_000 } },
@@ -26,7 +29,13 @@ function AuthInitializer({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const restore = async () => {
       try {
-        const refreshRes = await authApi.refresh();
+        // Use plain axios — bypasses the api interceptor so a missing cookie
+        // just throws here instead of triggering the interceptor's redirect loop.
+        const refreshRes = await axios.post(
+          `${BASE_URL}/auth/refresh`,
+          {},
+          { withCredentials: true }
+        );
         const token = refreshRes.data.data.access_token;
         (window as any).__accessToken = token;
         const meRes = await authApi.me();
