@@ -9,23 +9,23 @@ export function InvoicePreview({ invoice }: Props) {
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 max-w-3xl mx-auto font-sans">
       {/* Header */}
-      <div className="flex justify-between items-start p-8 pb-4">
+      <div className="flex justify-between items-start p-4 sm:p-8 pb-4">
         <div>
           <div className="font-bold text-gray-800 text-base">{invoice.business.name}</div>
           <div className="text-sm text-gray-500">{invoice.business.phone}</div>
           <div className="text-sm text-gray-500">{invoice.business.email}</div>
         </div>
-        <div className="text-5xl font-bold text-gray-700">Bill</div>
+        <div className="text-3xl sm:text-5xl font-bold text-gray-700">Bill</div>
       </div>
 
       {/* Due Banner */}
-      <div className="bg-peach-200 mx-8 rounded px-4 py-2 flex justify-between items-center mb-6">
-        <span className="font-bold text-gray-800">Due Balance &nbsp; {formatINR(invoice.due)}</span>
-        <span className="font-medium text-gray-700">Date: {formatDate(invoice.date)}</span>
+      <div className="bg-peach-200 mx-4 sm:mx-8 rounded px-3 sm:px-4 py-2 flex flex-wrap justify-between items-center gap-1 mb-6">
+        <span className="font-bold text-gray-800 text-sm sm:text-base">Due Balance &nbsp; {formatINR(invoice.due)}</span>
+        <span className="font-medium text-gray-700 text-sm">Date: {formatDate(invoice.date)}</span>
       </div>
 
       {/* Bill To */}
-      <div className="px-8 mb-6">
+      <div className="px-4 sm:px-8 mb-6">
         <div className="font-bold text-gray-700 text-sm mb-1">Bill to</div>
         <hr className="border-peach-300 mb-2" />
         <div className="text-gray-700">{invoice.bill_to.name}</div>
@@ -34,14 +34,14 @@ export function InvoicePreview({ invoice }: Props) {
       </div>
 
       {/* Items Table */}
-      <div className="px-8 mb-6">
-        <table className="w-full text-sm border border-peach-300">
+      <div className="px-4 sm:px-8 mb-6 overflow-x-auto">
+        <table className="w-full text-sm border border-peach-300 min-w-[400px]">
           <thead>
             <tr className="bg-peach-200 text-gray-700">
               <th className="text-left px-3 py-2 border border-peach-300 w-1/2">Description</th>
               <th className="text-center px-3 py-2 border border-peach-300">Rate</th>
-              <th className="text-center px-3 py-2 border border-peach-300">Quantity</th>
-              <th className="text-right px-3 py-2 border border-peach-300">Amount(INR)</th>
+              <th className="text-center px-3 py-2 border border-peach-300">Qty</th>
+              <th className="text-right px-3 py-2 border border-peach-300">Amount(₹)</th>
             </tr>
           </thead>
           <tbody>
@@ -69,8 +69,8 @@ export function InvoicePreview({ invoice }: Props) {
       </div>
 
       {/* Footer Totals */}
-      <div className="px-8 pb-8">
-        <table className="w-full text-sm ml-auto" style={{ maxWidth: '60%', marginLeft: 'auto' }}>
+      <div className="px-4 sm:px-8 pb-6 sm:pb-8">
+        <table className="w-full sm:w-3/5 text-sm ml-auto">
           <tbody>
             <tr className="border border-gray-200">
               <td className="px-4 py-2 text-right text-gray-600 font-semibold border border-gray-200">Total</td>

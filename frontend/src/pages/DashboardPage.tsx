@@ -2,7 +2,9 @@ import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { invoiceApi } from '../api/invoiceApi';
 import { formatINR } from '../utils/formatCurrency';
+import { formatDate } from '../utils/dateHelpers';
 import { Spinner } from '../components/ui/Spinner';
+import { StatusBadge } from '../components/ui/Badge';
 import { useAuthStore } from '../store/authStore';
 import { Link } from 'react-router-dom';
 
@@ -25,9 +27,9 @@ export function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-gray-800">Dashboard</h2>
-        <Link to="/invoices/create" className="bg-peach-200 hover:bg-peach-300 text-gray-800 font-semibold px-4 py-2 rounded-lg text-sm border border-peach-300">
+      <div className="flex items-center justify-between gap-3">
+        <h2 className="text-xl sm:text-2xl font-bold text-gray-800">Dashboard</h2>
+        <Link to="/invoices/create" className="bg-peach-200 hover:bg-peach-300 text-gray-800 font-semibold px-3 sm:px-4 py-2 rounded-lg text-sm border border-peach-300 whitespace-nowrap">
           + New Invoice
         </Link>
       </div>
@@ -52,28 +54,51 @@ export function DashboardPage() {
             <p>No invoices yet. <Link to="/invoices/create" className="text-peach-500 hover:underline">Create your first invoice</Link></p>
           </div>
         ) : (
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="bg-peach-50 text-gray-600">
-                <th className="text-left px-3 py-2">Invoice #</th>
-                <th className="text-left px-3 py-2">Customer</th>
-                <th className="text-right px-3 py-2">Total</th>
-                <th className="text-right px-3 py-2">Due</th>
-              </tr>
-            </thead>
-            <tbody>
+          <>
+            {/* Mobile: cards */}
+            <div className="md:hidden divide-y divide-gray-100 -mx-5">
               {recentInvoices.map((inv: any) => (
-                <tr key={inv.id} className="border-t border-gray-100 hover:bg-gray-50">
-                  <td className="px-3 py-2">
-                    <Link to={`/invoices/${inv.id}`} className="text-blue-600 hover:underline">{inv.invoice_number}</Link>
-                  </td>
-                  <td className="px-3 py-2 text-gray-700">{inv.bill_to?.name}</td>
-                  <td className="px-3 py-2 text-right font-medium">{formatINR(inv.total)}</td>
-                  <td className="px-3 py-2 text-right font-semibold text-red-600">{formatINR(inv.due)}</td>
-                </tr>
+                <div key={inv.id} className="px-5 py-3">
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <Link to={`/invoices/${inv.id}`} className="text-blue-600 font-medium text-sm hover:underline">{inv.invoice_number}</Link>
+                      <div className="text-sm text-gray-700 mt-0.5">{inv.bill_to?.name}</div>
+                      <div className="text-xs text-gray-400">{formatDate(inv.date)}</div>
+                    </div>
+                    <StatusBadge status={inv.status} />
+                  </div>
+                  <div className="flex gap-4 mt-1 text-sm">
+                    <span className="text-gray-500">Total: <span className="font-medium text-gray-800">{formatINR(inv.total)}</span></span>
+                    <span className="text-red-600 font-semibold">Due: {formatINR(inv.due)}</span>
+                  </div>
+                </div>
               ))}
-            </tbody>
-          </table>
+            </div>
+
+            {/* Desktop: table */}
+            <table className="hidden md:table w-full text-sm">
+              <thead>
+                <tr className="bg-peach-50 text-gray-600">
+                  <th className="text-left px-3 py-2">Invoice #</th>
+                  <th className="text-left px-3 py-2">Customer</th>
+                  <th className="text-right px-3 py-2">Total</th>
+                  <th className="text-right px-3 py-2">Due</th>
+                </tr>
+              </thead>
+              <tbody>
+                {recentInvoices.map((inv: any) => (
+                  <tr key={inv.id} className="border-t border-gray-100 hover:bg-gray-50">
+                    <td className="px-3 py-2">
+                      <Link to={`/invoices/${inv.id}`} className="text-blue-600 hover:underline">{inv.invoice_number}</Link>
+                    </td>
+                    <td className="px-3 py-2 text-gray-700">{inv.bill_to?.name}</td>
+                    <td className="px-3 py-2 text-right font-medium">{formatINR(inv.total)}</td>
+                    <td className="px-3 py-2 text-right font-semibold text-red-600">{formatINR(inv.due)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </>
         )}
       </div>
     </div>
