@@ -1,0 +1,66 @@
+version: "3.9"
+
+services:
+  mongo:
+    image: mongo:7.0
+    container_name: invoice_mongo
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: changeme
+      MONGO_INITDB_DATABASE: invoice_app
+    volumes:
+      - mongo_data:/data/db
+    ports:
+      - "27017:27017"
+    networks:
+      - invoice_net
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: invoice_backend
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env
+    environment:
+      MONGO_URI: mongodb://admin:changeme@mongo:27017/invoice_app?authSource=admin
+      GIN_MODE: release
+    ports:
+      - "8080:8080"
+    volumes:
+      - pdf_storage:/app/storage/pdfs
+    depends_on:
+      mongo:
+        condition: service_healthy
+    networks:
+      - invoice_net
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: invoice_frontend
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - invoice_net
+
+volumes:
+  mongo_data:
+    driver: local
+  pdf_storage:
+    driver: local
+
+networks:
+  invoice_net:
+    driver: bridge
